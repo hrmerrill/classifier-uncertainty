@@ -9,7 +9,7 @@ description = "Quantify uncertainty around classification performance metrics"
 readme = "README.md"
 license = { text = "Unlicense" }
 requires-python = ">=3.12"
-dependencies = []
+dependencies = ["numpy>=1.20", "matplotlib>=3.5"]
 
 [project.urls]
 Homepage = "https://github.com/hrmerrill/classifier-uncertainty"
