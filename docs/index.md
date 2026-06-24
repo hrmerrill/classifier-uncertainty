@@ -34,6 +34,7 @@ result.point_estimate       # posterior mean ≈ 0.963
 result.credible_interval()  # 95% HPDI ≈ (0.89, 1.0)
 result.metric_uncertainty   # HPDI length ≈ 0.11
 result.plot()               # posterior histogram with CI shading
+result.samples              # posterior samples
 ```
 
 Built-in metrics:
