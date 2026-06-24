@@ -130,6 +130,27 @@ def _generate_figures(assets_dir: str) -> None:
     fig.tight_layout()
     save("joint_precision_recall.png", fig)
 
+    # --- Figure 8: Prevalence exchange — precision at φ=0.70 vs φ=0.30 ---
+    bc_prev = BinaryClassifier.from_cm(tp=63, fn=7, tn=27, fp=3, seed=0)
+    t_prev = bc_prev.at_threshold()
+    prec_70 = t_prev.precision()
+    prec_30 = t_prev.at_prevalence(0.30).precision()
+    fig, ax = plt.subplots(figsize=(7, 3.5))
+    ax.hist(
+        prec_70.samples, bins=80, density=True, alpha=0.6, color="C0",
+        label=f"φ = 0.70 (test set)      mean = {prec_70.point_estimate:.3f}",
+    )
+    ax.hist(
+        prec_30.samples, bins=80, density=True, alpha=0.6, color="C1",
+        label=f"φ = 0.30 (production)  mean = {prec_30.point_estimate:.3f}",
+    )
+    ax.set_xlabel("Precision (PPV)")
+    ax.set_ylabel("Density")
+    ax.set_title("Precision posterior at two prevalence levels — same TPR/TNR posterior")
+    ax.legend()
+    fig.tight_layout()
+    save("prevalence_exchange.png", fig)
+
     # --- Figure 7: Kaggle probabilistic ranking (Tötsch & Hoffmann 2020, §2D) ---
     kaggle_N = 15_123
     kaggle_acc = [
