@@ -4,6 +4,27 @@
 
 This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.
 
+## Installation
+
+```bash
+pip install classifier-uncertainty
+```
+
+## Quick start
+
+```python
+from classifier_uncertainty import BinaryClassifier
+
+# From ground-truth labels and classifier scores
+bc = BinaryClassifier(y_true, y_score)
+
+# Or from published confusion matrix counts (e.g. from a paper)
+bc = BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2)
+
+# fix the binarization threshold
+t = bc.at_threshold(0.5)
+```
+
 ## What questions can this answer?
 
 **How well is a classifier likely to perform on a new, similar dataset?**
