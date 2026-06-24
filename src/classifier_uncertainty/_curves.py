@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from ._results import MetricResult
 from ._sampler import CMSampler
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 
 def _trapz(y: np.ndarray, x: np.ndarray, axis: int = 0) -> np.ndarray:
@@ -16,51 +21,52 @@ def _trapz(y: np.ndarray, x: np.ndarray, axis: int = 0) -> np.ndarray:
     return fn(y, x, axis=axis)
 
 
-def _draw_ellipse(ax, x: np.ndarray, y: np.ndarray, level: float = 0.95, **kwargs) -> None:
-    """Draw a covariance confidence ellipse from 2D posterior samples.
+def _interp_band(
+    x_mat: np.ndarray,
+    y_mat: np.ndarray,
+    grid: np.ndarray,
+    level: float = 0.95,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Interpolate y samples onto a fixed x grid and return (mean, lo, hi) HPDI.
 
     Parameters
     ----------
-    ax : matplotlib.axes.Axes
-        Axes to add the ellipse to.
-    x : np.ndarray
-        Samples for the horizontal axis.
-    y : np.ndarray
-        Samples for the vertical axis.
+    x_mat : np.ndarray
+        Shape ``(n_thresholds, n_samples)`` — x-axis samples per threshold.
+    y_mat : np.ndarray
+        Shape ``(n_thresholds, n_samples)`` — y-axis samples per threshold.
+    grid : np.ndarray
+        Fixed x values onto which y is interpolated per sample.
     level : float
-        Confidence level. Default is ``0.95``.
-    **kwargs
-        Forwarded to ``matplotlib.patches.Ellipse``.
-    """
-    from matplotlib.patches import Ellipse
+        HPDI level. Default is ``0.95``.
 
-    cov = np.cov(x, y)
-    if not np.all(np.isfinite(cov)):
-        return
-    eigenvalues, eigenvectors = np.linalg.eigh(cov)
-    # chi2(df=2) quantile: CDF(x) = 1 - exp(-x/2), so Q(p) = -2 ln(1-p)
-    chi2_val = -2.0 * np.log(1.0 - level)
-    angle = float(np.degrees(np.arctan2(eigenvectors[1, -1], eigenvectors[0, -1])))
-    width = 2.0 * float(np.sqrt(chi2_val * max(float(eigenvalues[-1]), 0.0)))
-    height = 2.0 * float(np.sqrt(chi2_val * max(float(eigenvalues[0]), 0.0)))
-    ax.add_patch(
-        Ellipse(
-            (float(np.mean(x)), float(np.mean(y))),
-            width=width,
-            height=height,
-            angle=angle,
-            fill=False,
-            **kwargs,
-        )
-    )
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray, np.ndarray]
+        ``(mean, lo, hi)`` each of shape ``(len(grid),)``.
+    """
+    n_samples = x_mat.shape[1]
+    y_on_grid = np.zeros((len(grid), n_samples))
+    for j in range(n_samples):
+        xs = x_mat[:, j]
+        ys = y_mat[:, j]
+        order = np.argsort(xs)
+        y_on_grid[:, j] = np.interp(grid, xs[order], ys[order])
+    mean = y_on_grid.mean(axis=1)
+    # Vectorised HPDI: sort all grid rows at once, then find minimum-width window
+    y_sorted = np.sort(y_on_grid, axis=1)
+    window = int(np.ceil(level * n_samples))
+    widths = y_sorted[:, window:] - y_sorted[:, : n_samples - window]
+    i = np.argmin(widths, axis=1)
+    rows = np.arange(len(grid))
+    return mean, y_sorted[rows, i], y_sorted[rows, i + window]
 
 
 class ROCResult:
     """Uncertainty-aware ROC curve.
 
-    Produced by :meth:`BinaryClassifier.roc_curve`. Each threshold in the
-    grid yields a posterior distribution over (FPR, TPR), visualised as a
-    2D covariance ellipse.
+    Produced by :meth:`BinaryClassifier.roc_curve`. Uncertainty is shown as a
+    95 % HPDI band computed by interpolating TPR samples onto a fixed FPR grid.
 
     Attributes
     ----------
@@ -84,19 +90,21 @@ class ROCResult:
         tpr_s = np.take_along_axis(self._tpr, order, axis=0)
         return MetricResult(np.abs(_trapz(tpr_s, fpr_s, axis=0)))
 
-    def plot(self, ax=None, level: float = 0.95, color: str = "C0", alpha: float = 0.4):
-        """Plot the ROC curve with 2D confidence ellipses at each threshold.
+    def plot(
+        self, ax: Axes | None = None, level: float = 0.95, color: str = "C0", alpha: float = 0.3
+    ) -> Axes:
+        """Plot the ROC curve with a posterior HPDI band.
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes, optional
             Axes to draw on. Uses ``plt.gca()`` if ``None``.
         level : float
-            Confidence level for ellipses. Default is ``0.95``.
+            HPDI level for the shaded band. Default is ``0.95``.
         color : str
-            Curve and ellipse colour. Default is ``"C0"``.
+            Curve and band colour. Default is ``"C0"``.
         alpha : float
-            Ellipse opacity. Default is ``0.4``.
+            Band opacity. Default is ``0.3``.
 
         Returns
         -------
@@ -107,27 +115,28 @@ class ROCResult:
 
         if ax is None:
             ax = plt.gca()
+        grid = np.linspace(0, 1, 300)
+        mean, lo, hi = _interp_band(self._fpr, self._tpr, grid, level)
+        ax.fill_between(
+            grid, lo, hi, alpha=alpha, color=color, edgecolor="none", label=f"{level:.0%} HPDI"
+        )
+        ax.plot(grid, mean, color=color, linewidth=1.5, label="mean")
         ax.plot([0, 1], [0, 1], "k--", alpha=0.3, linewidth=1)
-        for i in range(self._fpr.shape[0]):
-            _draw_ellipse(ax, self._fpr[i], self._tpr[i], level=level, edgecolor=color, alpha=alpha)
-        mean_fpr = self._fpr.mean(axis=1)
-        mean_tpr = self._tpr.mean(axis=1)
-        order = np.argsort(mean_fpr)
-        ax.plot(mean_fpr[order], mean_tpr[order], color=color, linewidth=1.5)
         ax.set_xlabel("FPR (1 − Specificity)")
         ax.set_ylabel("TPR (Sensitivity / Recall)")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         ax.set_aspect("equal")
+        ax.legend(fontsize=9)
         return ax
 
 
 class PRResult:
     """Uncertainty-aware Precision-Recall curve.
 
-    Produced by :meth:`BinaryClassifier.pr_curve`. Each threshold in the
-    grid yields a posterior distribution over (Recall, Precision), visualised
-    as a 2D covariance ellipse.
+    Produced by :meth:`BinaryClassifier.pr_curve`. Uncertainty is shown as a
+    95 % HPDI band computed by interpolating Precision samples onto a fixed
+    Recall grid.
 
     Attributes
     ----------
@@ -152,19 +161,21 @@ class PRResult:
         prec_s = np.take_along_axis(self._precision, order, axis=0)
         return MetricResult(np.abs(_trapz(prec_s, rec_s, axis=0)))
 
-    def plot(self, ax=None, level: float = 0.95, color: str = "C0", alpha: float = 0.4):
-        """Plot the PR curve with 2D confidence ellipses at each threshold.
+    def plot(
+        self, ax: Axes | None = None, level: float = 0.95, color: str = "C0", alpha: float = 0.3
+    ) -> Axes:
+        """Plot the PR curve with a posterior HPDI band.
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes, optional
             Axes to draw on. Uses ``plt.gca()`` if ``None``.
         level : float
-            Confidence level for ellipses. Default is ``0.95``.
+            HPDI level for the shaded band. Default is ``0.95``.
         color : str
-            Curve and ellipse colour. Default is ``"C0"``.
+            Curve and band colour. Default is ``"C0"``.
         alpha : float
-            Ellipse opacity. Default is ``0.4``.
+            Band opacity. Default is ``0.3``.
 
         Returns
         -------
@@ -175,16 +186,15 @@ class PRResult:
 
         if ax is None:
             ax = plt.gca()
-        for i in range(self._recall.shape[0]):
-            _draw_ellipse(
-                ax, self._recall[i], self._precision[i], level=level, edgecolor=color, alpha=alpha
-            )
-        mean_recall = self._recall.mean(axis=1)
-        mean_prec = self._precision.mean(axis=1)
-        order = np.argsort(mean_recall)
-        ax.plot(mean_recall[order], mean_prec[order], color=color, linewidth=1.5)
+        grid = np.linspace(0, 1, 300)
+        mean, lo, hi = _interp_band(self._recall, self._precision, grid, level)
+        ax.fill_between(
+            grid, lo, hi, alpha=alpha, color=color, edgecolor="none", label=f"{level:.0%} HPDI"
+        )
+        ax.plot(grid, mean, color=color, linewidth=1.5, label="mean")
         ax.set_xlabel("Recall (TPR)")
         ax.set_ylabel("Precision (PPV)")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
+        ax.legend(fontsize=9)
         return ax
