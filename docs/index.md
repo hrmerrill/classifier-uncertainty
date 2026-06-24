@@ -123,11 +123,6 @@ t.tpr().point_estimate, t.tpr().credible_interval()
 (t.bookmaker_informedness().samples > 0).mean()
 ```
 
-**How many test samples do I need for a reliable evaluation?**
-```python
-int((2 / 0.10) ** 2)  # → 400 samples needed for MU ≤ 10 percentage points
-```
-
 **Should I trust this published result?**
 ```python
 BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2).at_threshold().tpr().credible_interval()
