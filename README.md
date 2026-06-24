@@ -1,5 +1,9 @@
 # Classifier Uncertainty
 
+## About
+
+This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.
+
 ## What questions can this answer?
 
 **How well is a classifier likely to perform on a new, similar dataset?**
@@ -32,19 +36,10 @@ t.tpr().point_estimate, t.tpr().credible_interval()
 (t.bookmaker_informedness().samples > 0).mean()
 ```
 
-**How many test samples do I need for a reliable evaluation?**
-```python
-int((2 / 0.10) ** 2)  # → 400 samples needed for MU ≤ 10 percentage points
-```
-
 **Should I trust this published result?**
 ```python
 BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2).at_threshold().tpr().credible_interval()
 ```
-
-## About
-
-This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.
 
 ## For Developers
 
