@@ -46,8 +46,10 @@ class BinaryClassifier:
     n_samples : int
         Number of posterior CM samples. Default is ``20_000``.
     prior : tuple[float, float]
-        Beta(α, β) prior applied to φ, TPR, and TNR. Default is the Laplace
-        prior ``(1.0, 1.0)``.
+        Beta(α, β) prior applied uniformly to φ, TPR, and TNR. Default is the
+        Laplace prior ``(1.0, 1.0)``. The same prior is used for all three
+        distributions; per-distribution priors are not currently supported. If
+        you need that, open an issue on GitHub.
     seed : int, optional
         Random seed for reproducibility.
     """
@@ -93,7 +95,9 @@ class BinaryClassifier:
         n_samples : int
             Number of posterior CM samples. Default is ``20_000``.
         prior : tuple[float, float]
-            Beta(α, β) prior. Default is Laplace ``(1.0, 1.0)``.
+            Beta(α, β) prior applied uniformly to φ, TPR, and TNR. Default is
+            Laplace ``(1.0, 1.0)``. Per-distribution priors are not currently
+            supported; open a GitHub issue if you need them.
         seed : int, optional
             Random seed for reproducibility.
 

@@ -22,7 +22,9 @@ class CMSampler:
     fp : int
         False positive count.
     prior : tuple[float, float]
-        Beta(α, β) prior applied to φ, TPR, and TNR. Default is Laplace ``(1, 1)``.
+        Beta(α, β) prior applied uniformly to φ, TPR, and TNR. Default is
+        Laplace ``(1, 1)``. Per-distribution priors are not currently
+        supported; open a GitHub issue if you need them.
     n_samples : int
         Number of posterior samples to draw.
     rng : np.random.Generator, optional
