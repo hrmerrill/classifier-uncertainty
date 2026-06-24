@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from ._sampler import CMSampler
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 
 def _hpdi(samples: np.ndarray, level: float) -> tuple[float, float]:
@@ -65,7 +70,7 @@ class MetricResult:
         lo, hi = self.credible_interval(0.95)
         return hi - lo
 
-    def plot(self, ax=None, level: float = 0.95, **kwargs):
+    def plot(self, ax: Axes | None = None, level: float = 0.95, **kwargs) -> Axes:
         """Plot a histogram of posterior samples with HPDI shading.
 
         Parameters
@@ -106,7 +111,9 @@ class ValueScoreCurve:
         self._cl = cl_values  # (n_cl,)
         self._vs = vs_matrix  # (n_cl, n_samples)
 
-    def plot(self, ax=None, level: float = 0.95, color: str = "C0", alpha: float = 0.25):
+    def plot(
+        self, ax: Axes | None = None, level: float = 0.95, color: str = "C0", alpha: float = 0.25
+    ) -> Axes:
         """Plot the VS curve with a posterior credible band.
 
         Parameters
@@ -136,7 +143,9 @@ class ValueScoreCurve:
             lo[i], hi[i] = _hpdi(self._vs[i], level)
         mean_vs = self._vs.mean(axis=1)
         ax.axhline(0.0, color="k", linewidth=0.8, linestyle="--", alpha=0.4)
-        ax.fill_between(self._cl, lo, hi, alpha=alpha, color=color, label=f"{level:.0%} HPDI")
+        ax.fill_between(
+            self._cl, lo, hi, alpha=alpha, color=color, edgecolor="none", label=f"{level:.0%} HPDI"
+        )
         ax.plot(self._cl, mean_vs, color=color, linewidth=1.5, label="mean VS")
         ax.set_xlabel("Cost/Loss ratio (C/L)")
         ax.set_ylabel("Value Score")
