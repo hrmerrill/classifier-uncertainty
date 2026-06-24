@@ -47,6 +47,12 @@ t = bc.at_threshold(0.5)
 t.tpr().point_estimate, t.tpr().credible_interval()
 ```
 
+**How will performance change if prevalence changes?**
+```python
+t.precision().point_estimate  # at observed prevalence
+t.at_prevalence(0.05).precision().point_estimate  # projected to production
+```
+
 **How likely is classifier A better than classifier B on a given metric?**
 ```python
 (bc_a.at_threshold().tpr().samples > bc_b.at_threshold().tpr().samples).mean()
