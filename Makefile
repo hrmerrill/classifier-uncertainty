@@ -10,7 +10,7 @@ check:
 	uv run interrogate --fail-under 100 src/
 
 test:
-	uv run pytest --cov=src --cov-report=term-missing
+	uv run pytest --cov=src --cov-report=term-missing --cov-report=xml
 
 docs:
 	uv run mkdocs build

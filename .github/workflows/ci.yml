@@ -20,7 +20,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           mkdir -p .github/badges
-          uv run coverage-badge -o .github/badges/coverage.svg -f
+          uv run genbadge coverage -i coverage.xml -o .github/badges/coverage.svg
           uv run interrogate --generate-badge .github/badges/ src/
       - name: Commit badges
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
