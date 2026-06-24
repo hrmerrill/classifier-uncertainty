@@ -12,6 +12,13 @@
 
 This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.
 
+The original authors' Python implementation is available at [niklastoe/classifier_metric_uncertainty](https://github.com/niklastoe/classifier_metric_uncertainty). This package was built independently and extends that work with:
+
+- **Score-based input** — accepts raw `(y_true, y_score)` pairs and sweeps thresholds; the original takes confusion matrix counts only
+- **ROC and PR curves with uncertainty bands** — including AUC posterior distributions
+- **Economic value analysis** — Value Score (Wilks 2001) and mean expense posteriors
+- **Custom metrics** — evaluate any `f(tp, fn, tn, fp)` over the posterior CM samples
+
 ## Installation
 
 ```bash
