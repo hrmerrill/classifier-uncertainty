@@ -1,14 +1,26 @@
-"""MkDocs hook: generate example figures after each build."""
+"""MkDocs hook: generate example figures.
+
+Path-transformation strategy
+-----------------------------
+mkdocs only rewrites relative image paths (e.g. ``assets/foo.png`` →
+``../assets/foo.png``) when the target file exists in ``docs/``.  Subpages
+like ``examples/index.html`` need the rewrite to find images in ``site/assets/``.
+
+Solution:
+- ``on_pre_build``: write to ``docs/assets/`` ONCE (skip if already present).
+  mkdocs then finds the files and transforms all image paths correctly.
+- ``on_post_build``: always write to ``site/assets/`` so the site stays
+  current with any code changes.
+
+To force regeneration (e.g. after editing this file):
+    rm -rf docs/assets/ && make docs
+"""
 
 import os
 
 
-def on_post_build(config, **kwargs):
-    """Write example figures into site/assets/ after every build.
-
-    Writing to site_dir (not docs/) keeps the file watcher from detecting
-    changes and triggering an infinite rebuild loop during ``mkdocs serve``.
-    """
+def _generate_figures(assets_dir: str) -> None:
+    """Write all example figures into *assets_dir*."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -17,10 +29,9 @@ def on_post_build(config, **kwargs):
 
     from classifier_uncertainty import BinaryClassifier
 
-    assets_dir = os.path.join(config["site_dir"], "assets")
     os.makedirs(assets_dir, exist_ok=True)
 
-    def save(name, fig):
+    def save(name: str, fig) -> None:
         fig.savefig(os.path.join(assets_dir, name), dpi=110, bbox_inches="tight")
         plt.close(fig)
 
@@ -47,13 +58,13 @@ def on_post_build(config, **kwargs):
     fig.tight_layout()
     save("metric_posteriors.png", fig)
 
-    # --- Figure 2: ROC curve with 2D uncertainty ellipses ---
+    # --- Figure 2: ROC curve with HPDI band ---
     fig, ax = plt.subplots(figsize=(5, 5))
     bc.roc_curve(n_thresholds=30).plot(ax=ax)
     fig.tight_layout()
     save("roc_curve.png", fig)
 
-    # --- Figure 3: Precision-Recall curve with 2D uncertainty ellipses ---
+    # --- Figure 3: Precision-Recall curve with HPDI band ---
     fig, ax = plt.subplots(figsize=(5, 5))
     bc.pr_curve(n_thresholds=30).plot(ax=ax)
     fig.tight_layout()
@@ -91,17 +102,13 @@ def on_post_build(config, **kwargs):
     save("mu_vs_n.png", fig)
 
     # --- Figure 6: Joint vs permuted precision-recall scatter ---
-    # Use a small-N CM so the posteriors are spread enough to show the correlation clearly.
-    # tp=10 fn=10 tn=20 fp=10 is a balanced hypothetical classifier, N=50.
     bc_joint = BinaryClassifier.from_cm(tp=10, fn=10, tn=20, fp=10, seed=42)
     t_joint = bc_joint.at_threshold()
     recall_s = t_joint.tpr().samples
     prec_s = t_joint.precision().samples
     corr = float(np.corrcoef(recall_s, prec_s)[0, 1])
-
     scatter_rng = np.random.default_rng(0)
     prec_shuffled = scatter_rng.permutation(prec_s)
-
     fig, (ax_joint, ax_perm) = plt.subplots(1, 2, figsize=(9, 4.5))
     kw = dict(alpha=0.1, s=2, linewidths=0)
     for ax, xs, ys, color, title in [
@@ -124,9 +131,6 @@ def on_post_build(config, **kwargs):
     save("joint_precision_recall.png", fig)
 
     # --- Figure 7: Kaggle probabilistic ranking (Tötsch & Hoffmann 2020, §2D) ---
-    # Recursion Cellular Image Classification competition; N ≈ 15,123 private images.
-    # Accuracy modelled as Beta(correct+1, incorrect+1) — the conjugate posterior
-    # for a binary correct/incorrect outcome with a Laplace prior.
     kaggle_N = 15_123
     kaggle_acc = [0.99954, 0.99907, 0.99887, 0.99867, 0.99847,
                   0.99827, 0.99807, 0.99787, 0.99767, 0.99747]
@@ -140,8 +144,6 @@ def on_post_build(config, **kwargs):
 
     colors10 = plt.cm.Blues(np.linspace(0.85, 0.3, 10))
     fig, (ax_dens, ax_bar) = plt.subplots(2, 1, figsize=(9, 7))
-
-    # Top: overlapping density curves (histogram, zoomed x-axis)
     x_lo = min(s.min() for s in kaggle_samples) * 100
     x_hi = max(s.max() for s in kaggle_samples) * 100
     for i, samp in enumerate(kaggle_samples):
@@ -151,12 +153,8 @@ def on_post_build(config, **kwargs):
                              edgecolor="none", label=f"Sub {i + 1}")
     ax_dens.set_xlabel("Accuracy (%)")
     ax_dens.set_ylabel("Density")
-    ax_dens.set_title(
-        "Posterior accuracy distributions — top 10 Kaggle submissions (N ≈ 15,123)"
-    )
+    ax_dens.set_title("Posterior accuracy distributions — top 10 Kaggle submissions (N ≈ 15,123)")
     ax_dens.legend(fontsize=8, ncol=2, loc="upper left")
-
-    # Bottom: P(ranked 1st) for each submission
     bars = ax_bar.bar(np.arange(1, 11), p_best * 100, color=colors10, edgecolor="none")
     ax_bar.set_xlabel("Submission rank (by point estimate)")
     ax_bar.set_ylabel("P(truly best)  %")
@@ -164,10 +162,28 @@ def on_post_build(config, **kwargs):
     ax_bar.set_title(
         f"Probabilistic leaderboard — submission 1 is truly best in {p_best[0]:.0%} of posterior draws"
     )
+    ax_bar.set_ylim(0, 105)
     for bar, p in zip(bars, p_best):
         if p > 0.005:
             ax_bar.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
                         f"{p:.1%}", ha="center", va="bottom", fontsize=9)
-
     fig.tight_layout()
     save("kaggle_ranking.png", fig)
+
+
+def on_pre_build(config, **kwargs) -> None:
+    """Write figures to docs/assets/ on first run only.
+
+    mkdocs transforms image paths only when the target exists in docs/.
+    Skipping on subsequent runs prevents an infinite rebuild loop during
+    ``mkdocs serve``.  Delete docs/assets/ to force regeneration.
+    """
+    sentinel = os.path.join("docs", "assets", "metric_posteriors.png")
+    if os.path.exists(sentinel):
+        return
+    _generate_figures(os.path.join("docs", "assets"))
+
+
+def on_post_build(config, **kwargs) -> None:
+    """Write figures to site/assets/ after every build (keeps site current)."""
+    _generate_figures(os.path.join(config["site_dir"], "assets"))
