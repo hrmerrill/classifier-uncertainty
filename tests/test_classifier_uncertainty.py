@@ -205,6 +205,37 @@ def test_roc_curve_plot():
     assert ax is not None
 
 
+def test_at_prevalence_fixed_phi():
+    """at_prevalence(float) fixes phi exactly while preserving TPR posterior."""
+    bc = BinaryClassifier.from_cm(tp=26, fn=4, tn=60, fp=10, seed=0)
+    result = bc.at_threshold()
+    result2 = result.at_prevalence(0.1)
+    phi_implied = result2._sampler.cm_samples[:, 0] + result2._sampler.cm_samples[:, 1]
+    np.testing.assert_allclose(phi_implied, 0.1, atol=1e-12)
+    np.testing.assert_allclose(result.tpr().samples, result2.tpr().samples, rtol=1e-10)
+
+
+def test_at_prevalence_beta_prior():
+    """at_prevalence(tuple) samples phi from Beta while preserving TPR posterior."""
+    bc = BinaryClassifier.from_cm(tp=26, fn=4, tn=60, fp=10, seed=0)
+    result = bc.at_threshold()
+    result2 = result.at_prevalence((2, 18), seed=0)  # Beta(2, 18) → mean ≈ 0.1
+    phi_implied = result2._sampler.cm_samples[:, 0] + result2._sampler.cm_samples[:, 1]
+    assert not np.allclose(phi_implied, phi_implied[0])  # phi varies across samples
+    assert abs(phi_implied.mean() - 0.1) < 0.02
+    np.testing.assert_allclose(result.tpr().samples, result2.tpr().samples, rtol=1e-10)
+
+
+def test_at_prevalence_invalid_phi():
+    """at_prevalence raises ValueError for phi outside (0, 1)."""
+    bc = BinaryClassifier.from_cm(tp=10, fn=2, tn=8, fp=3)
+    result = bc.at_threshold()
+    with pytest.raises(ValueError):
+        result.at_prevalence(0.0)
+    with pytest.raises(ValueError):
+        result.at_prevalence(1.0)
+
+
 def test_pr_curve_plot():
     """PRResult.plot() returns axes without error."""
     rng = np.random.default_rng(0)
