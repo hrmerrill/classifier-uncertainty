@@ -132,13 +132,25 @@ def _generate_figures(assets_dir: str) -> None:
 
     # --- Figure 7: Kaggle probabilistic ranking (Tötsch & Hoffmann 2020, §2D) ---
     kaggle_N = 15_123
-    kaggle_acc = [0.99954, 0.99907, 0.99887, 0.99867, 0.99847,
-                  0.99827, 0.99807, 0.99787, 0.99767, 0.99747]
+    kaggle_acc = [
+        0.99954,
+        0.99907,
+        0.99887,
+        0.99867,
+        0.99847,
+        0.99827,
+        0.99807,
+        0.99787,
+        0.99767,
+        0.99747,
+    ]
     kaggle_rng = np.random.default_rng(42)
-    kaggle_samples = np.array([
-        kaggle_rng.beta(round(kaggle_N * acc) + 1, kaggle_N - round(kaggle_N * acc) + 1, 20_000)
-        for acc in kaggle_acc
-    ])  # (10, 20_000)
+    kaggle_samples = np.array(
+        [
+            kaggle_rng.beta(round(kaggle_N * acc) + 1, kaggle_N - round(kaggle_N * acc) + 1, 20_000)
+            for acc in kaggle_acc
+        ]
+    )  # (10, 20_000)
     rank_per_sample = np.argsort(np.argsort(-kaggle_samples, axis=0), axis=0)
     p_best = (rank_per_sample == 0).mean(axis=1)
 
@@ -149,8 +161,14 @@ def _generate_figures(assets_dir: str) -> None:
     for i, samp in enumerate(kaggle_samples):
         hist, edges = np.histogram(samp * 100, bins=300, density=True, range=(x_lo, x_hi))
         centers = 0.5 * (edges[:-1] + edges[1:])
-        ax_dens.fill_between(centers, hist / 100, alpha=0.55, color=colors10[i],
-                             edgecolor="none", label=f"Sub {i + 1}")
+        ax_dens.fill_between(
+            centers,
+            hist / 100,
+            alpha=0.55,
+            color=colors10[i],
+            edgecolor="none",
+            label=f"Sub {i + 1}",
+        )
     ax_dens.set_xlabel("Accuracy (%)")
     ax_dens.set_ylabel("Density")
     ax_dens.set_title("Posterior accuracy distributions — top 10 Kaggle submissions (N ≈ 15,123)")
@@ -160,13 +178,20 @@ def _generate_figures(assets_dir: str) -> None:
     ax_bar.set_ylabel("P(truly best)  %")
     ax_bar.set_xticks(np.arange(1, 11))
     ax_bar.set_title(
-        f"Probabilistic leaderboard — submission 1 is truly best in {p_best[0]:.0%} of posterior draws"
+        f"Probabilistic leaderboard — submission 1 is truly best in {p_best[0]:.0%}"
+        " of posterior draws"
     )
     ax_bar.set_ylim(0, 105)
     for bar, p in zip(bars, p_best):
         if p > 0.005:
-            ax_bar.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
-                        f"{p:.1%}", ha="center", va="bottom", fontsize=9)
+            ax_bar.text(
+                bar.get_x() + bar.get_width() / 2,
+                bar.get_height() + 0.5,
+                f"{p:.1%}",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
     fig.tight_layout()
     save("kaggle_ranking.png", fig)
 
