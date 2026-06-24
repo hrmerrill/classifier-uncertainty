@@ -161,6 +161,61 @@ correctly into VS.
 
 ---
 
+## Probabilistic ranking of competing classifiers
+
+Tötsch & Hoffmann (2020, §2D) applied Bayesian accuracy posteriors to the
+Recursion Cellular Image Classification Kaggle competition. With ~15,000 private
+test images and submissions separated by fractions of a percent, the apparent
+ranking is unreliable.
+
+For a single accuracy value, the posterior is exactly Beta(correct + 1, incorrect + 1)
+— the conjugate posterior with a Laplace prior. This needs no confusion matrix; sample
+directly:
+
+```python
+import numpy as np
+
+N = 15_123  # estimated private leaderboard size
+# Published point-estimate accuracies for the top 10 submissions
+point_estimates = [0.99954, 0.99907, 0.99887, 0.99867, 0.99847,
+                   0.99827, 0.99807, 0.99787, 0.99767, 0.99747]
+
+rng = np.random.default_rng(42)
+acc_samples = np.array([
+    rng.beta(round(N * acc) + 1, N - round(N * acc) + 1, 20_000)
+    for acc in point_estimates
+])  # shape: (10, 20_000)
+
+# For each of the 20,000 posterior draws, rank all submissions
+rank_per_sample = np.argsort(np.argsort(-acc_samples, axis=0), axis=0)
+p_best = (rank_per_sample == 0).mean(axis=1)
+
+print(f"P(submission 1 is truly the best): {p_best[0]:.1%}")  # → 91.7%
+print(f"P(submission 2 is truly the best): {p_best[1]:.1%}")  # →  6.4%
+```
+
+The distributions overlap enough that the winner holds the top spot in only ~92%
+of posterior draws, and the runner-up has a meaningful ~6% chance of being the
+better classifier.
+
+![Kaggle probabilistic ranking](assets/kaggle_ranking.png)
+
+For metrics other than accuracy, or when you only have a confusion matrix,
+use `BinaryClassifier.from_cm` and call the appropriate metric method on each
+classifier, then compare samples the same way:
+
+```python
+from classifier_uncertainty import BinaryClassifier
+
+# Any metric — here F1, from confusion matrix counts
+f1_a = BinaryClassifier.from_cm(tp=80, fn=20, tn=90, fp=10).at_threshold().f1()
+f1_b = BinaryClassifier.from_cm(tp=75, fn=25, tn=95, fp=5).at_threshold().f1()
+
+print(f"P(A has higher F1): {(f1_a.samples > f1_b.samples).mean():.1%}")
+```
+
+---
+
 ## Metric uncertainty and sample size
 
 Metric uncertainty (MU, the 95% HPDI length) decreases with test set size N,
