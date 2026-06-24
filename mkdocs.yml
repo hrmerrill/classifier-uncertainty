@@ -1,6 +1,8 @@
 site_name: classifier-uncertainty
 theme:
   name: material
+hooks:
+  - hooks.py
 plugins:
   - search
   - mkdocstrings:
@@ -9,6 +11,9 @@ plugins:
           paths: [src]
           options:
             docstring_style: numpy
+            show_root_heading: true
+            show_source: false
 nav:
   - Home: index.md
+  - Examples: examples.md
   - API Reference: api.md
