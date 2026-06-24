@@ -89,3 +89,36 @@ def on_post_build(config, **kwargs):
     ax.legend()
     fig.tight_layout()
     save("mu_vs_n.png", fig)
+
+    # --- Figure 6: Joint vs permuted precision-recall scatter ---
+    # Use a small-N CM so the posteriors are spread enough to show the correlation clearly.
+    # tp=10 fn=10 tn=20 fp=10 is a balanced hypothetical classifier, N=50.
+    bc_joint = BinaryClassifier.from_cm(tp=10, fn=10, tn=20, fp=10, seed=42)
+    t_joint = bc_joint.at_threshold()
+    recall_s = t_joint.tpr().samples
+    prec_s = t_joint.precision().samples
+    corr = float(np.corrcoef(recall_s, prec_s)[0, 1])
+
+    scatter_rng = np.random.default_rng(0)
+    prec_shuffled = scatter_rng.permutation(prec_s)
+
+    fig, (ax_joint, ax_perm) = plt.subplots(1, 2, figsize=(9, 4.5))
+    kw = dict(alpha=0.1, s=2, linewidths=0)
+    for ax, xs, ys, color, title in [
+        (ax_joint, recall_s, prec_s, "C0", f"Joint samples  (r = {corr:.2f})"),
+        (ax_perm, recall_s, prec_shuffled, "C1", "Permuted samples  (r ≈ 0)"),
+    ]:
+        ax.scatter(xs, ys, color=color, **kw)
+        ax.set_xlabel("Recall (TPR)")
+        ax.set_ylabel("Precision (PPV)")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.set_aspect("equal")
+        ax.set_title(title)
+    fig.suptitle(
+        "Posterior precision and recall — joint (left) vs independently permuted (right)\n"
+        "Same marginal distributions; only the pairing differs",
+        fontsize=10,
+    )
+    fig.tight_layout()
+    save("joint_precision_recall.png", fig)
