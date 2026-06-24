@@ -51,6 +51,17 @@ Built-in metrics:
 | `bookmaker_informedness()` | | TPR + TNR − 1 |
 | `mcc()` | | Matthews correlation coefficient |
 
+Because all metrics from the same `ThresholdResult` share the same underlying CM samples,
+their posteriors are **joint** — not independently drawn. The left panel below scatters
+`t.tpr().samples` against `t.precision().samples` directly; the right panel permutes
+one array to break the pairing while keeping the same marginal distributions:
+
+![Joint posterior samples of precision and recall](assets/joint_precision_recall.png)
+
+The elongated cloud on the left cannot be recovered by treating the metrics as independent.
+This matters when computing joint probabilities (e.g. P(recall > 0.8 **and** precision > 0.8))
+or when propagating uncertainty through any function of multiple metrics.
+
 **Custom metrics** receive CM entry proportions as numpy arrays, so any ratio metric works directly:
 
 ```python
