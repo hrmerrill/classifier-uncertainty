@@ -1,0 +1,863 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../api/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Examples - classifier-uncertainty</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="classifier-uncertainty" class="md-header__button md-logo" aria-label="classifier-uncertainty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            classifier-uncertainty
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Examples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="classifier-uncertainty" class="md-nav__button md-logo" aria-label="classifier-uncertainty" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    classifier-uncertainty
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-a-published-confusion-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From a published confusion matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threshold-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threshold metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Threshold metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roc-and-precision-recall-curves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ROC and Precision-Recall curves
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#economic-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Economic value
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Economic value">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mean-expense" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mean expense
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relative-value-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relative Value Score
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probabilistic-ranking-of-competing-classifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probabilistic ranking of competing classifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevalence-exchange" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prevalence exchange
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-uncertainty-and-sample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric uncertainty and sample size
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#from-a-published-confusion-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        From a published confusion matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#threshold-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threshold metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Threshold metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roc-and-precision-recall-curves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ROC and Precision-Recall curves
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#economic-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Economic value
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Economic value">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mean-expense" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mean expense
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relative-value-score" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relative Value Score
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probabilistic-ranking-of-competing-classifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probabilistic ranking of competing classifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prevalence-exchange" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prevalence exchange
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metric-uncertainty-and-sample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metric uncertainty and sample size
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="examples">Examples</h1>
+<p>All examples use a synthetic binary classification dataset with N=150, prevalence ≈ 40%,
+and a moderately good classifier (AUC ≈ 0.85):</p>
+<pre><code class="language-python">import numpy as np
+from classifier_uncertainty import BinaryClassifier
+
+rng = np.random.default_rng(42)
+n = 150
+y_true = (rng.uniform(0, 1, n) &lt; 0.40).astype(bool)
+y_score = np.where(y_true, rng.beta(5, 2, n), rng.beta(2, 5, n))
+
+bc = BinaryClassifier(y_true, y_score, seed=42)
+</code></pre>
+<hr />
+<h2 id="from-a-published-confusion-matrix">From a published confusion matrix</h2>
+<p>If you only have confusion matrix counts — common when evaluating classifiers from
+published papers — use <code>from_cm</code>. No raw predictions needed.</p>
+<pre><code class="language-python"># Classifier 7a from Tötsch &amp; Hoffmann (2020): N=34, all 26 positives correctly classified
+bc_paper = BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2)
+result = bc_paper.at_threshold().tpr()
+
+print(f&quot;TPR point estimate: {result.point_estimate:.3f}&quot;)   # ≈ 0.963
+print(f&quot;95% credible interval: {result.credible_interval()}&quot;)  # ≈ (0.891, 0.999)
+print(f&quot;Metric uncertainty: {result.metric_uncertainty:.3f}&quot;)  # ≈ 0.108
+</code></pre>
+<p>The 95% credible interval spans 89%–100% — strikingly wide for a classifier
+with zero false negatives, because N=34 is very small.
+The point estimate of 100% is impossible to achieve in any finite test set; the posterior
+correctly reflects this.</p>
+<hr />
+<h2 id="threshold-metrics">Threshold metrics</h2>
+<p>At a fixed decision threshold, all metrics share the same posterior CM samples,
+so their correlations are preserved.</p>
+<pre><code class="language-python">t = bc.at_threshold(0.5)
+
+t.accuracy()
+t.tpr()                     # sensitivity / recall
+t.tnr()                     # specificity
+t.precision()               # ppv
+t.npv()
+t.f1()
+t.balanced_accuracy()
+t.bookmaker_informedness()
+t.mcc()
+</code></pre>
+<p>Each method returns a <code>MetricResult</code>. Calling <code>.plot()</code> on any of them renders the
+posterior histogram with HPDI shading:</p>
+<pre><code class="language-python">t.tpr().plot()
+t.tnr().plot()
+t.accuracy().plot()
+</code></pre>
+<p><img alt="Metric posteriors" src="../assets/metric_posteriors.png" /></p>
+<p>The orange band is the 95% highest posterior density interval (HPDI); its length
+is <code>result.metric_uncertainty</code>.</p>
+<h3 id="custom-metrics">Custom metrics</h3>
+<p>Pass any function of the CM proportions to <code>.metric()</code>:</p>
+<pre><code class="language-python"># False discovery rate: FP / (TP + FP)
+fdr = t.metric(lambda tp, fn, tn, fp: fp / (tp + fp))
+fdr.credible_interval()
+</code></pre>
+<p>The proportions <code>tp</code>, <code>fn</code>, <code>tn</code>, <code>fp</code> are numpy arrays (one value per posterior
+sample) summing to ~1 per row, so standard ratio metrics work without rescaling.</p>
+<hr />
+<h2 id="roc-and-precision-recall-curves">ROC and Precision-Recall curves</h2>
+<p>Both curve methods sweep a quantile-spaced threshold grid. At each threshold,
+the joint posterior distribution over the two curve axes is visualised as an
+uncertainty band at the chosen confidence level (default 95%).</p>
+<pre><code class="language-python">roc = bc.roc_curve(n_thresholds=30)
+roc.plot()
+
+# AUC as a full posterior distribution
+print(f&quot;AUC mean: {roc.auc.point_estimate:.3f}&quot;)
+print(f&quot;AUC 95% CI: {roc.auc.credible_interval()}&quot;)
+</code></pre>
+<p><img alt="ROC curve" src="../assets/roc_curve.png" /></p>
+<pre><code class="language-python">pr = bc.pr_curve(n_thresholds=30)
+pr.plot()
+print(f&quot;AP mean: {pr.auc.point_estimate:.3f}&quot;)
+</code></pre>
+<p><img alt="PR curve" src="../assets/pr_curve.png" /></p>
+<hr />
+<h2 id="economic-value">Economic value</h2>
+<h3 id="mean-expense">Mean expense</h3>
+<p>Mean expense is the raw expected cost per observation under a cost/loss
+decision framework. Protective actions (TP and FP) each incur cost C; missed
+events (FN) incur loss L; correct negatives (TN) have no cost:</p>
+<pre><code class="language-python">expense = t.mean_expense(cost=1.0, loss=5.0)
+expense.point_estimate       # expected cost per observation
+expense.credible_interval()  # 95% HPDI
+</code></pre>
+<h3 id="relative-value-score">Relative Value Score</h3>
+<p>The <strong>Value Score</strong> (Wilks 2001) measures improvement over the naive
+climatological strategy, normalised so VS = 1 for perfect forecasts and VS = 0
+for no skill. It depends only on the cost/loss ratio C/L ∈ (0, 1):</p>
+<ul>
+<li><strong>C</strong>: cost of a protective action (paid for both TP and FP)</li>
+<li><strong>L</strong>: loss when the event occurs without protection</li>
+<li><strong>VS = 1</strong>: perfect; <strong>VS = 0</strong>: no better than climatology; <strong>VS &lt; 0</strong>: harmful</li>
+</ul>
+<pre><code class="language-python"># VS at a specific C/L — returns a MetricResult like any other metric
+t.relative_value(cost_loss_ratio=0.3)
+
+# VS curve over all C/L values — plot the full uncertainty band
+t.value_score_curve(n_cl=100).plot()
+</code></pre>
+<p><img alt="Value Score curve" src="../assets/vs_curve.png" /></p>
+<p>The shaded region is the 95% posterior credible band. VS = 0
+marks the point where the classifier stops adding economic value. The formula
+selects between two regimes per posterior sample based on whether C/L is above or
+below the sampled prevalence, so the uncertainty in prevalence is propagated
+correctly into VS.</p>
+<hr />
+<h2 id="probabilistic-ranking-of-competing-classifiers">Probabilistic ranking of competing classifiers</h2>
+<p>Tötsch &amp; Hoffmann (2020, §2D) applied Bayesian accuracy posteriors to the
+Recursion Cellular Image Classification Kaggle competition. With ~15,000 private
+test images and submissions separated by fractions of a percent, the apparent
+ranking may be unreliable.</p>
+<p>For a single accuracy value, the posterior is exactly Beta(correct + 1, incorrect + 1)
+— the conjugate posterior with a Laplace prior. This needs no confusion matrix; sample
+directly:</p>
+<pre><code class="language-python">import numpy as np
+
+N = 15_123  # estimated private leaderboard size
+# Published point-estimate accuracies for the top 10 submissions
+point_estimates = [0.99954, 0.99907, 0.99887, 0.99867, 0.99847,
+                   0.99827, 0.99807, 0.99787, 0.99767, 0.99747]
+
+rng = np.random.default_rng(42)
+acc_samples = np.array([
+    rng.beta(round(N * acc) + 1, N - round(N * acc) + 1, 20_000)
+    for acc in point_estimates
+])  # shape: (10, 20_000)
+
+# For each of the 20,000 posterior draws, rank all submissions
+rank_per_sample = np.argsort(np.argsort(-acc_samples, axis=0), axis=0)
+p_best = (rank_per_sample == 0).mean(axis=1)
+
+print(f&quot;P(submission 1 is truly the best): {p_best[0]:.1%}&quot;)  # → 91.7%
+print(f&quot;P(submission 2 is truly the best): {p_best[1]:.1%}&quot;)  # →  6.4%
+</code></pre>
+<p>The distributions overlap enough that the winner holds the top spot in only ~92%
+of posterior draws, and the runner-up has a meaningful ~6% chance of being the
+better classifier.</p>
+<p><img alt="Kaggle probabilistic ranking" src="../assets/kaggle_ranking.png" /></p>
+<p>For metrics other than accuracy, or when you only have a confusion matrix,
+use <code>BinaryClassifier.from_cm</code> and call the appropriate metric method on each
+classifier, then compare samples the same way:</p>
+<pre><code class="language-python">from classifier_uncertainty import BinaryClassifier
+
+# Any metric — here F1, from confusion matrix counts
+f1_a = BinaryClassifier.from_cm(tp=80, fn=20, tn=90, fp=10).at_threshold().f1()
+f1_b = BinaryClassifier.from_cm(tp=75, fn=25, tn=95, fp=5).at_threshold().f1()
+
+print(f&quot;P(A has higher F1): {(f1_a.samples &gt; f1_b.samples).mean():.1%}&quot;)
+</code></pre>
+<hr />
+<h2 id="prevalence-exchange">Prevalence exchange</h2>
+<p>Test sets for medical classifiers are often designed with an elevated disease
+prevalence to ensure enough positive examples — but the classifier will be
+deployed in a general population where prevalence is much lower. Because
+TPR and TNR are sampled independently of φ, you can swap in any prevalence
+and the class-conditional posteriors carry through unchanged.</p>
+<pre><code class="language-python"># Test set designed with 70% disease prevalence
+bc_med = BinaryClassifier.from_cm(tp=63, fn=7, tn=27, fp=3, seed=0)
+t_med = bc_med.at_threshold()
+
+prec_70 = t_med.precision()                      # observed test-set prevalence
+prec_30 = t_med.at_prevalence(0.30).precision()  # projected to production
+
+print(f&quot;Precision at φ=0.70: {prec_70.point_estimate:.3f}&quot;)   # ≈ 0.955
+print(f&quot;Precision at φ=0.30: {prec_30.point_estimate:.3f}&quot;)   # ≈ 0.794
+</code></pre>
+<p>The posteriors can be plotted on the same axes to visualise the shift and its uncertainty:</p>
+<p><img alt="Precision posterior at two prevalence levels" src="../assets/prevalence_exchange.png" /></p>
+<p>The TPR and TNR samples are identical between the two distributions — only the
+prevalence differs. The full width of each band reflects uncertainty in the
+class-conditional rates (TPR, TNR), not in φ.</p>
+<p>To encode uncertainty about the production prevalence, pass a Beta prior instead:</p>
+<pre><code class="language-python"># Beta(3, 7) → mean φ ≈ 0.30 with uncertainty
+prec_uncertain = t_med.at_prevalence((3, 7), seed=0).precision()
+</code></pre>
+<hr />
+<h2 id="metric-uncertainty-and-sample-size">Metric uncertainty and sample size</h2>
+<p>Metric uncertainty (MU, the 95% HPDI length) decreases with test set size N
+and is approximated by 2/√N (Tötsch &amp; Hoffmann eq. 15).</p>
+<pre><code class="language-python"># Compute MU for TPR across a range of N
+for n in [10, 30, 100, 300, 1000]:
+    bc_n = BinaryClassifier.from_cm(
+        tp=round(n * 0.35), fn=round(n * 0.15),
+        tn=round(n * 0.35), fp=round(n * 0.15),
+    )
+    mu = bc_n.at_threshold().tpr().metric_uncertainty
+    print(f&quot;N={n:4d}: MU={mu:.3f}  (bound: {2/n**0.5:.3f})&quot;)
+</code></pre>
+<p><img alt="Metric uncertainty vs sample size" src="../assets/mu_vs_n.png" /></p>
+<p><strong>Sample size rule of thumb:</strong> to achieve MU ≤ δ, you need at least N ≥ (2/δ)²
+test samples. For MU ≤ 10 percentage points: N ≥ 400. For MU ≤ 5 percentage
+points: N ≥ 1600.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
