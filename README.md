@@ -1,5 +1,47 @@
 # Classifier Uncertainty
 
+## What questions can this answer?
+
+**How well is a classifier likely to perform on a new, similar dataset?**
+```python
+t.tpr().point_estimate, t.tpr().credible_interval()
+```
+
+**How likely is classifier A better than classifier B on a given metric?**
+```python
+(bc_a.at_threshold().tpr().samples > bc_b.at_threshold().tpr().samples).mean()
+```
+
+**How likely is this model more cost-effective than business-as-usual?**
+```python
+(t_model.mean_expense(C, L).samples < t_bau.mean_expense(C, L).samples).mean()
+```
+
+**Does this classifier meet my minimum recall requirement?**
+```python
+(t.tpr().samples > 0.8).mean()
+```
+
+**Do precision and recall meet requirements simultaneously?**
+```python
+((t.tpr().samples > 0.8) & (t.precision().samples > 0.8)).mean()
+```
+
+**Is this classifier better than random guessing?**
+```python
+(t.bookmaker_informedness().samples > 0).mean()
+```
+
+**How many test samples do I need for a reliable evaluation?**
+```python
+int((2 / 0.10) ** 2)  # → 400 samples needed for MU ≤ 10 percentage points
+```
+
+**Should I trust this published result?**
+```python
+BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2).at_threshold().tpr().credible_interval()
+```
+
 ## About
 
 This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.

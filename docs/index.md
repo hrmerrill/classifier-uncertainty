@@ -6,6 +6,48 @@ Implements the approach from [Tötsch & Hoffmann (2021)](https://peerj.com/artic
 sample the confusion matrix from Beta posteriors, then propagate to any metric.
 The result is a full posterior distribution over each metric, not just a point estimate.
 
+## What questions can this answer?
+
+**How well is a classifier likely to perform on a new, similar dataset?**
+```python
+t.tpr().point_estimate, t.tpr().credible_interval()
+```
+
+**How likely is classifier A better than classifier B on a given metric?**
+```python
+(bc_a.at_threshold().tpr().samples > bc_b.at_threshold().tpr().samples).mean()
+```
+
+**How likely is this model more cost-effective than business-as-usual?**
+```python
+(t_model.mean_expense(C, L).samples < t_bau.mean_expense(C, L).samples).mean()
+```
+
+**Does this classifier meet my minimum recall requirement?**
+```python
+(t.tpr().samples > 0.8).mean()
+```
+
+**Do precision and recall meet requirements simultaneously?**
+```python
+((t.tpr().samples > 0.8) & (t.precision().samples > 0.8)).mean()
+```
+
+**Is this classifier better than random guessing?**
+```python
+(t.bookmaker_informedness().samples > 0).mean()
+```
+
+**How many test samples do I need for a reliable evaluation?**
+```python
+int((2 / 0.10) ** 2)  # → 400 samples needed for MU ≤ 10 percentage points
+```
+
+**Should I trust this published result?**
+```python
+BinaryClassifier.from_cm(tp=26, fn=0, tn=6, fp=2).at_threshold().tpr().credible_interval()
+```
+
 ## Installation
 
 ```bash
@@ -73,19 +115,22 @@ t.metric(lambda tp, fn, tn, fp: fp / (tp + fp))
 
 ```python
 roc = bc.roc_curve()        # sweep a quantile-spaced threshold grid
-roc.plot()                  # ROC curve + 2D covariance ellipses at each threshold
+roc.plot()                  # ROC curve with 95% HPDI band
 roc.auc                     # MetricResult — full AUC-ROC posterior
 
-bc.pr_curve().plot()        # Precision-Recall curve with uncertainty ellipses
+bc.pr_curve().plot()        # Precision-Recall curve with 95% HPDI band
 ```
 
-## Relative economic value
-
-Based on [Wilks (2001)](https://doi.org/10.1017/S1350482701000366):
+## Economic value
 
 ```python
-t.relative_value(0.3)        # Value Score at cost/loss ratio C/L = 0.3
-t.value_score_curve().plot() # VS curve over all C/L ∈ (0, 1) with credible band
+# Raw expected cost per observation (hits and false alarms incur cost; misses incur loss)
+t.mean_expense(cost=1.0, loss=5.0)
+
+# Relative Value Score (Wilks 2001) — improvement over climatological strategy
+# VS = 1: perfect; VS = 0: no better than climatology
+t.relative_value(cost_loss_ratio=0.3)   # C/L ∈ (0, 1)
+t.value_score_curve().plot()            # VS over all C/L with credible band
 ```
 
 ---
