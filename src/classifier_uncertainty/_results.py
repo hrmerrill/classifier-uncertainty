@@ -305,3 +305,28 @@ class ThresholdResult:
             return np.where(cl < phi, vs_5b, vs_5c)
 
         return self.metric(_vs)
+
+    def mean_expense(self, cost: float, loss: float) -> MetricResult:
+        """Return the posterior distribution of mean expense per observation.
+
+        Protective actions (TP and FP) each incur ``cost``; missed events
+        (FN) incur ``loss``; correct negatives (TN) have no cost.
+
+        The formula is ``(TP + FP) * cost + FN * loss`` evaluated on CM
+        entry proportions, which equals ``(hits + false_alarms) * cost +
+        misses * loss`` divided by N.
+
+        Parameters
+        ----------
+        cost : float
+            Cost of a protective action (incurred for both hits and false
+            alarms).
+        loss : float
+            Loss incurred for a missed event (false negative).
+
+        Returns
+        -------
+        MetricResult
+            Posterior distribution of mean expense per observation.
+        """
+        return self.metric(lambda tp, fn, tn, fp: (tp + fp) * cost + fn * loss)

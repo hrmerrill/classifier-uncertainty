@@ -123,6 +123,19 @@ def test_relative_value_perfect_classifier():
     assert abs(vs.point_estimate - 1.0) < 0.02
 
 
+def test_mean_expense():
+    """mean_expense is non-negative and decreases toward 0 for a perfect classifier."""
+    bc_perfect = BinaryClassifier.from_cm(tp=1000, fn=0, tn=1000, fp=0, seed=0)
+    bc_poor = BinaryClassifier.from_cm(tp=5, fn=15, tn=5, fp=15, seed=0)
+    cost, loss = 1.0, 5.0
+    me_perfect = bc_perfect.at_threshold().mean_expense(cost, loss).point_estimate
+    me_poor = bc_poor.at_threshold().mean_expense(cost, loss).point_estimate
+    assert me_perfect >= 0
+    assert me_poor > me_perfect  # poor classifier has higher mean expense
+    # TP-only: expense ≈ TP_prop * cost ≈ prevalence * cost
+    assert me_perfect < cost * 0.6
+
+
 def test_relative_value_invalid_ratio():
     """cost_loss_ratio outside (0, 1) raises ValueError."""
     bc = BinaryClassifier.from_cm(tp=10, fn=2, tn=8, fp=3)
