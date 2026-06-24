@@ -110,7 +110,10 @@ class ROCResult:
         ax.plot([0, 1], [0, 1], "k--", alpha=0.3, linewidth=1)
         for i in range(self._fpr.shape[0]):
             _draw_ellipse(ax, self._fpr[i], self._tpr[i], level=level, edgecolor=color, alpha=alpha)
-        ax.plot(self._fpr.mean(axis=1), self._tpr.mean(axis=1), color=color, linewidth=1.5)
+        mean_fpr = self._fpr.mean(axis=1)
+        mean_tpr = self._tpr.mean(axis=1)
+        order = np.argsort(mean_fpr)
+        ax.plot(mean_fpr[order], mean_tpr[order], color=color, linewidth=1.5)
         ax.set_xlabel("FPR (1 − Specificity)")
         ax.set_ylabel("TPR (Sensitivity / Recall)")
         ax.set_xlim(0, 1)
@@ -176,7 +179,10 @@ class PRResult:
             _draw_ellipse(
                 ax, self._recall[i], self._precision[i], level=level, edgecolor=color, alpha=alpha
             )
-        ax.plot(self._recall.mean(axis=1), self._precision.mean(axis=1), color=color, linewidth=1.5)
+        mean_recall = self._recall.mean(axis=1)
+        mean_prec = self._precision.mean(axis=1)
+        order = np.argsort(mean_recall)
+        ax.plot(mean_recall[order], mean_prec[order], color=color, linewidth=1.5)
         ax.set_xlabel("Recall (TPR)")
         ax.set_ylabel("Precision (PPV)")
         ax.set_xlim(0, 1)

@@ -141,6 +141,7 @@ class ValueScoreCurve:
         ax.set_xlabel("Cost/Loss ratio (C/L)")
         ax.set_ylabel("Value Score")
         ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
         ax.legend(fontsize=9)
         return ax
 
