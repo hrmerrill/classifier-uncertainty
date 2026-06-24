@@ -122,3 +122,52 @@ def on_post_build(config, **kwargs):
     )
     fig.tight_layout()
     save("joint_precision_recall.png", fig)
+
+    # --- Figure 7: Kaggle probabilistic ranking (Tötsch & Hoffmann 2020, §2D) ---
+    # Recursion Cellular Image Classification competition; N ≈ 15,123 private images.
+    # Accuracy modelled as Beta(correct+1, incorrect+1) — the conjugate posterior
+    # for a binary correct/incorrect outcome with a Laplace prior.
+    kaggle_N = 15_123
+    kaggle_acc = [0.99954, 0.99907, 0.99887, 0.99867, 0.99847,
+                  0.99827, 0.99807, 0.99787, 0.99767, 0.99747]
+    kaggle_rng = np.random.default_rng(42)
+    kaggle_samples = np.array([
+        kaggle_rng.beta(round(kaggle_N * acc) + 1, kaggle_N - round(kaggle_N * acc) + 1, 20_000)
+        for acc in kaggle_acc
+    ])  # (10, 20_000)
+    rank_per_sample = np.argsort(np.argsort(-kaggle_samples, axis=0), axis=0)
+    p_best = (rank_per_sample == 0).mean(axis=1)
+
+    colors10 = plt.cm.Blues(np.linspace(0.85, 0.3, 10))
+    fig, (ax_dens, ax_bar) = plt.subplots(2, 1, figsize=(9, 7))
+
+    # Top: overlapping density curves (histogram, zoomed x-axis)
+    x_lo = min(s.min() for s in kaggle_samples) * 100
+    x_hi = max(s.max() for s in kaggle_samples) * 100
+    for i, samp in enumerate(kaggle_samples):
+        hist, edges = np.histogram(samp * 100, bins=300, density=True, range=(x_lo, x_hi))
+        centers = 0.5 * (edges[:-1] + edges[1:])
+        ax_dens.fill_between(centers, hist / 100, alpha=0.55, color=colors10[i],
+                             edgecolor="none", label=f"Sub {i + 1}")
+    ax_dens.set_xlabel("Accuracy (%)")
+    ax_dens.set_ylabel("Density")
+    ax_dens.set_title(
+        "Posterior accuracy distributions — top 10 Kaggle submissions (N ≈ 15,123)"
+    )
+    ax_dens.legend(fontsize=8, ncol=2, loc="upper left")
+
+    # Bottom: P(ranked 1st) for each submission
+    bars = ax_bar.bar(np.arange(1, 11), p_best * 100, color=colors10, edgecolor="none")
+    ax_bar.set_xlabel("Submission rank (by point estimate)")
+    ax_bar.set_ylabel("P(truly best)  %")
+    ax_bar.set_xticks(np.arange(1, 11))
+    ax_bar.set_title(
+        f"Probabilistic leaderboard — submission 1 is truly best in {p_best[0]:.0%} of posterior draws"
+    )
+    for bar, p in zip(bars, p_best):
+        if p > 0.005:
+            ax_bar.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
+                        f"{p:.1%}", ha="center", va="bottom", fontsize=9)
+
+    fig.tight_layout()
+    save("kaggle_ranking.png", fig)
