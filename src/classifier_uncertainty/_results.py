@@ -166,6 +166,60 @@ class ThresholdResult:
     def __init__(self, sampler: CMSampler) -> None:
         self._sampler = sampler
 
+    def at_prevalence(
+        self, phi: float | tuple[float, float], seed: int | None = None
+    ) -> "ThresholdResult":
+        """Return a new ThresholdResult with prevalence replaced by ``phi``.
+
+        Re-uses the TPR and TNR posterior samples from this result unchanged,
+        replacing only the prevalence (φ). This implements the
+        prevalence-exchange technique from Tötsch & Hoffmann (2020): because
+        TPR and TNR are sampled independently of φ, swapping φ is exact.
+
+        Parameters
+        ----------
+        phi : float or tuple[float, float]
+            New prevalence. A ``float`` fixes φ exactly (e.g. the known
+            population rate); a ``(α, β)`` tuple draws φ from
+            ``Beta(α, β)`` to encode uncertainty over the production
+            prevalence (e.g. ``(2, 398)`` for φ ≈ 0.005 ± uncertainty).
+        seed : int, optional
+            Random seed used when ``phi`` is a tuple. Ignored for float.
+
+        Returns
+        -------
+        ThresholdResult
+            New result sharing the same TPR/TNR posterior but with the
+            specified φ.
+
+        Raises
+        ------
+        ValueError
+            If ``phi`` is a float outside the open interval ``(0, 1)``.
+        """
+        tp_s, fn_s, tn_s, fp_s = self._sampler.cm_samples.T
+        n = len(tp_s)
+        if isinstance(phi, tuple):
+            phi_new = np.random.default_rng(seed).beta(phi[0], phi[1], n)
+        else:
+            phi = float(phi)
+            if not (0.0 < phi < 1.0):
+                raise ValueError("phi must be in the open interval (0, 1)")
+            phi_new = np.full(n, phi)
+        phi_s = tp_s + fn_s
+        tpr_s = tp_s / phi_s
+        tnr_s = tn_s / (tn_s + fp_s)
+        cm = np.stack(
+            [
+                tpr_s * phi_new,
+                (1.0 - tpr_s) * phi_new,
+                tnr_s * (1.0 - phi_new),
+                (1.0 - tnr_s) * (1.0 - phi_new),
+            ],
+            axis=1,
+        )
+        return ThresholdResult(CMSampler._from_samples(cm))
+
     def metric(self, func) -> MetricResult:
         """Compute a custom metric from CM entry proportions.
 

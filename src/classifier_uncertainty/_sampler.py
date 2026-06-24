@@ -58,3 +58,22 @@ class CMSampler:
         tn_s = tnr_s * (1.0 - phi)
         fp_s = (1.0 - tnr_s) * (1.0 - phi)
         self.cm_samples = np.stack([tp_s, fn_s, tn_s, fp_s], axis=1)
+
+    @classmethod
+    def _from_samples(cls, cm_samples: np.ndarray) -> "CMSampler":
+        """Construct a CMSampler directly from pre-computed CM samples.
+
+        Parameters
+        ----------
+        cm_samples : np.ndarray
+            Array of shape ``(n_samples, 4)`` with columns
+            ``[θ_TP, θ_FN, θ_TN, θ_FP]``.
+
+        Returns
+        -------
+        CMSampler
+            Instance whose ``cm_samples`` attribute is set to the given array.
+        """
+        obj = cls.__new__(cls)
+        obj.cm_samples = cm_samples
+        return obj
