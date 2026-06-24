@@ -1,5 +1,9 @@
 """Quantify uncertainty around classification performance metrics.
 
-Implements methods from Tötsch & Hoffmann 2021 (PeerJ Computer Science)
-to compute uncertainty intervals for common classifier metrics.
+Implements methods from Tötsch & Hoffmann (2020) to compute posterior
+distributions for classifier metrics via Bayesian confusion matrix sampling.
 """
+
+from ._classifier import BinaryClassifier
+
+__all__ = ["BinaryClassifier"]
