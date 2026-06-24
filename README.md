@@ -1,5 +1,13 @@
 # Classifier Uncertainty
 
+<p align="center">
+  <img src="https://img.shields.io/pypi/v/classifier-uncertainty?style=flat-square&color=111111&label=pypi" alt="pypi">
+  <img src="https://github.com/hrmerrill/classifier-uncertainty/actions/workflows/ci.yml/badge.svg?style=flat-square" alt="CI">
+  <img src="https://raw.githubusercontent.com/hrmerrill/classifier-uncertainty/main/.github/badges/coverage.svg" alt="coverage">
+  <img src="https://raw.githubusercontent.com/hrmerrill/classifier-uncertainty/main/.github/badges/interrogate_badge.svg" alt="docstring coverage">
+  <img src="https://img.shields.io/badge/license-unlicense-111111?style=flat-square" alt="Unlicense">
+</p>
+
 ## About
 
 This package implements methods from [Tötsch N and Hoffmann D. 2021](https://peerj.com/articles/cs-398/) to quantify the uncertainty around classification performance metrics. Classifiers are often tested on relatively small data sets, which should lead to uncertain performance metrics. Even when tested on large data sets, performance is often presented as a percentage with three decimals, and competing classifiers are ranked assuming such a precision. Reducing metric uncertainty below 0.001% would require tens of billions of data points.
