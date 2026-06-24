@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "classifier-uncertainty"
+version = "0.1.0"
+description = "Quantify uncertainty around classification performance metrics"
+readme = "README.md"
+license = { text = "Unlicense" }
+requires-python = ">=3.12"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/hrmerrill/classifier-uncertainty"
+Documentation = "https://hrmerrill.github.io/classifier-uncertainty"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/classifier_uncertainty"]
+
+[dependency-groups]
+dev = [
+    "interrogate>=1.7",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.25",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.9",
+    "ty>=0.0.1",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+fail_under = 90
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-magic = true
+ignore-private = true
+fail-under = 100
+verbose = 0
