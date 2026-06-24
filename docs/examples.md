@@ -90,8 +90,8 @@ sample) summing to ~1 per row, so standard ratio metrics work without rescaling.
 ## ROC and Precision-Recall curves
 
 Both curve methods sweep a quantile-spaced threshold grid. At each threshold,
-the joint posterior distribution over the two curve axes is visualised as a
-2D covariance ellipse at the chosen confidence level (default 95%).
+the joint posterior distribution over the two curve axes is visualised as an
+uncertainty band at the chosen confidence level (default 95%).
 
 ```python
 roc = bc.roc_curve(n_thresholds=30)
@@ -111,11 +111,6 @@ print(f"AP mean: {pr.auc.point_estimate:.3f}")
 ```
 
 ![PR curve](assets/pr_curve.png)
-
-Each ellipse is the 95% covariance confidence region of (FPR, TPR) or
-(Recall, Precision) at that threshold, derived analytically from the 2D
-posterior covariance (no chi-squared table lookup needed: for a bivariate normal
-the 95% contour satisfies χ²(2) = −2 ln 0.05 ≈ 5.99).
 
 ---
 
@@ -153,7 +148,7 @@ t.value_score_curve(n_cl=100).plot()
 
 ![Value Score curve](assets/vs_curve.png)
 
-The shaded region is the 95% posterior credible band. The dashed line at VS = 0
+The shaded region is the 95% posterior credible band. VS = 0
 marks the point where the classifier stops adding economic value. The formula
 selects between two regimes per posterior sample based on whether C/L is above or
 below the sampled prevalence, so the uncertainty in prevalence is propagated
@@ -166,7 +161,7 @@ correctly into VS.
 Tötsch & Hoffmann (2020, §2D) applied Bayesian accuracy posteriors to the
 Recursion Cellular Image Classification Kaggle competition. With ~15,000 private
 test images and submissions separated by fractions of a percent, the apparent
-ranking is unreliable.
+ranking may be unreliable.
 
 For a single accuracy value, the posterior is exactly Beta(correct + 1, incorrect + 1)
 — the conjugate posterior with a Laplace prior. This needs no confusion matrix; sample
@@ -218,8 +213,8 @@ print(f"P(A has higher F1): {(f1_a.samples > f1_b.samples).mean():.1%}")
 
 ## Metric uncertainty and sample size
 
-Metric uncertainty (MU, the 95% HPDI length) decreases with test set size N,
-bounded above by 2/√N (Tötsch & Hoffmann eq. 15).
+Metric uncertainty (MU, the 95% HPDI length) decreases with test set size N
+and is approximated by 2/√N (Tötsch & Hoffmann eq. 15).
 
 ```python
 # Compute MU for TPR across a range of N
