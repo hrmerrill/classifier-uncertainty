@@ -211,6 +211,43 @@ print(f"P(A has higher F1): {(f1_a.samples > f1_b.samples).mean():.1%}")
 
 ---
 
+## Prevalence exchange
+
+Test sets for medical classifiers are often designed with an elevated disease
+prevalence to ensure enough positive examples — but the classifier will be
+deployed in a general population where prevalence is much lower. Because
+TPR and TNR are sampled independently of φ, you can swap in any prevalence
+and the class-conditional posteriors carry through unchanged.
+
+```python
+# Test set designed with 70% disease prevalence
+bc_med = BinaryClassifier.from_cm(tp=63, fn=7, tn=27, fp=3, seed=0)
+t_med = bc_med.at_threshold()
+
+prec_70 = t_med.precision()                      # observed test-set prevalence
+prec_30 = t_med.at_prevalence(0.30).precision()  # projected to production
+
+print(f"Precision at φ=0.70: {prec_70.point_estimate:.3f}")   # ≈ 0.955
+print(f"Precision at φ=0.30: {prec_30.point_estimate:.3f}")   # ≈ 0.794
+```
+
+The posteriors can be plotted on the same axes to visualise the shift and its uncertainty:
+
+![Precision posterior at two prevalence levels](assets/prevalence_exchange.png)
+
+The TPR and TNR samples are identical between the two distributions — only the
+prevalence differs. The full width of each band reflects uncertainty in the
+class-conditional rates (TPR, TNR), not in φ.
+
+To encode uncertainty about the production prevalence, pass a Beta prior instead:
+
+```python
+# Beta(3, 7) → mean φ ≈ 0.30 with uncertainty
+prec_uncertain = t_med.at_prevalence((3, 7), seed=0).precision()
+```
+
+---
+
 ## Metric uncertainty and sample size
 
 Metric uncertainty (MU, the 95% HPDI length) decreases with test set size N
