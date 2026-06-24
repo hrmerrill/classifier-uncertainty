@@ -119,15 +119,29 @@ the 95% contour satisfies χ²(2) = −2 ln 0.05 ≈ 5.99).
 
 ---
 
-## Relative economic value
+## Economic value
 
-The **Value Score** (Wilks 2001) measures relative economic improvement over a
-naive climatological strategy, as a function of the decision-maker's cost/loss
-ratio C/L ∈ (0, 1):
+### Mean expense
 
-- **C**: cost of a protective action (always paid when the action is taken)
-- **L**: loss suffered when the event occurs with no protection
-- **VS = 1**: perfect forecasts; **VS = 0**: no better than climatology; **VS < 0**: harmful
+Mean expense is the raw expected cost per observation under a cost/loss
+decision framework. Protective actions (TP and FP) each incur cost C; missed
+events (FN) incur loss L; correct negatives (TN) have no cost:
+
+```python
+expense = t.mean_expense(cost=1.0, loss=5.0)
+expense.point_estimate       # expected cost per observation
+expense.credible_interval()  # 95% HPDI
+```
+
+### Relative Value Score
+
+The **Value Score** (Wilks 2001) measures improvement over the naive
+climatological strategy, normalised so VS = 1 for perfect forecasts and VS = 0
+for no skill. It depends only on the cost/loss ratio C/L ∈ (0, 1):
+
+- **C**: cost of a protective action (paid for both TP and FP)
+- **L**: loss when the event occurs without protection
+- **VS = 1**: perfect; **VS = 0**: no better than climatology; **VS < 0**: harmful
 
 ```python
 # VS at a specific C/L — returns a MetricResult like any other metric
