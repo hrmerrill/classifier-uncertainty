@@ -20,6 +20,7 @@ packages = ["src/classifier_uncertainty"]
 
 [dependency-groups]
 dev = [
+    "coverage-badge>=1.1",
     "interrogate>=1.7",
     "mkdocs-material>=9.5",
     "mkdocstrings[python]>=0.25",
